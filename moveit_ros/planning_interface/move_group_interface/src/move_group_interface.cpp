@@ -124,6 +124,7 @@ public:
     goal_orientation_tolerance_ = 1e-3;  // ~0.1 deg
     allowed_planning_time_ = 5.0;
     num_planning_attempts_ = 1;
+    max_cartesian_speed_ = 0.0;
     max_velocity_scaling_factor_ = 1.0;
     max_acceleration_scaling_factor_ = 1.0;
     initializing_constraints_ = false;
@@ -421,6 +422,28 @@ public:
     }
     else
       return false;
+  }
+
+  void limitMaxCartesianLinkSpeed(const double max_speed, const std::string& link_name)
+  {
+    cartesian_speed_limited_link_ = link_name;
+    max_cartesian_speed_ = max_speed;
+  }
+
+  void clearMaxCartesianLinkSpeed()
+  {
+    cartesian_speed_limited_link_ = "";
+    max_cartesian_speed_ = 0.0;
+  }
+
+  const double getMaxCartesianSpeed() const
+  {
+    return max_cartesian_speed_;
+  }
+
+  const std::string& getCartesianSpeedLimitedLink() const
+  {
+    return cartesian_speed_limited_link_;
   }
 
   void setEndEffectorLink(const std::string& end_effector)
@@ -854,6 +877,8 @@ public:
     req.path_constraints = path_constraints;
     req.avoid_collisions = avoid_collisions;
     req.link_name = getEndEffectorLink();
+    req.cartesian_speed_limited_link = cartesian_speed_limited_link_;
+    req.max_cartesian_speed = max_cartesian_speed_;
 
     if (cartesian_path_service_.call(req, res))
     {
@@ -1241,6 +1266,8 @@ private:
   unsigned int num_planning_attempts_;
   double max_velocity_scaling_factor_;
   double max_acceleration_scaling_factor_;
+  std::string cartesian_speed_limited_link_;
+  double max_cartesian_speed_;
   double goal_joint_tolerance_;
   double goal_position_tolerance_;
   double goal_orientation_tolerance_;
@@ -1413,6 +1440,26 @@ void moveit::planning_interface::MoveGroupInterface::setMaxAccelerationScalingFa
     double max_acceleration_scaling_factor)
 {
   impl_->setMaxAccelerationScalingFactor(max_acceleration_scaling_factor);
+}
+
+void moveit::planning_interface::MoveGroupInterface::limitMaxCartesianLinkSpeed(const double max_speed, const std::string& link_name)
+{
+  impl_->limitMaxCartesianLinkSpeed(max_speed, link_name);
+}
+
+void moveit::planning_interface::MoveGroupInterface::clearMaxCartesianLinkSpeed()
+{
+  impl_->clearMaxCartesianLinkSpeed();
+}
+
+const double moveit::planning_interface::MoveGroupInterface::getMaxCartesianSpeed() const
+{
+  return impl_->getMaxCartesianSpeed();
+}
+
+const std::string& moveit::planning_interface::MoveGroupInterface::getCartesianSpeedLimitedLink() const
+{
+  return impl_->getCartesianSpeedLimitedLink();
 }
 
 moveit::core::MoveItErrorCode moveit::planning_interface::MoveGroupInterface::asyncMove()

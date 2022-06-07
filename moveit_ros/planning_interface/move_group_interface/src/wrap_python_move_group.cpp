@@ -44,6 +44,7 @@
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 #include <moveit/trajectory_processing/iterative_spline_parameterization.h>
 #include <moveit/trajectory_processing/time_optimal_trajectory_generation.h>
+#include <moveit/trajectory_processing/cartesian_speed.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -579,6 +580,17 @@ public:
           trajectory_processing::TimeOptimalTrajectoryGeneration time_param;
           time_param.computeTimeStamps(traj_obj, velocity_scaling_factor, acceleration_scaling_factor);
         }
+        else if (algorithm == "limit_max_cartesian_link_speed")
+        {
+          trajectory_processing::IterativeParabolicTimeParameterization time_param;
+          time_param.computeTimeStamps(traj_obj, velocity_scaling_factor, acceleration_scaling_factor);
+          std::string cartesian_speed_limited_link = getCartesianSpeedLimitedLink();
+          double max_cartesian_speed = getMaxCartesianSpeed();
+          if (max_cartesian_speed > 0.0)
+          {
+            trajectory_processing::limitMaxCartesianLinkSpeed(traj_obj, max_cartesian_speed, cartesian_speed_limited_link );
+          }
+        }
         else
         {
           ROS_ERROR_STREAM_NAMED("move_group_py", "Unknown time parameterization algorithm: " << algorithm);
@@ -761,6 +773,10 @@ static void wrap_move_group_interface()
                                  &MoveGroupInterfaceWrapper::setMaxVelocityScalingFactor);
   move_group_interface_class.def("set_max_acceleration_scaling_factor",
                                  &MoveGroupInterfaceWrapper::setMaxAccelerationScalingFactor);
+  move_group_interface_class.def("limit_max_cartesian_link_speed",
+                                 &MoveGroupInterfaceWrapper::limitMaxCartesianLinkSpeed);
+  move_group_interface_class.def("clear_max_cartesian_link_speed",
+                                 &MoveGroupInterfaceWrapper::clearMaxCartesianLinkSpeed);
   move_group_interface_class.def("set_planner_id", &MoveGroupInterfaceWrapper::setPlannerId);
   move_group_interface_class.def("get_planner_id", &MoveGroupInterfaceWrapper::getPlannerIdCStr);
   move_group_interface_class.def("set_num_planning_attempts", &MoveGroupInterfaceWrapper::setNumPlanningAttempts);

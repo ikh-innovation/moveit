@@ -53,6 +53,8 @@ public:
   bool computeTimeStamps(robot_trajectory::RobotTrajectory& trajectory, const double max_velocity_scaling_factor = 1.0,
                          const double max_acceleration_scaling_factor = 1.0) const override;
 
+  static void updateTrajectory(robot_trajectory::RobotTrajectory& rob_trajectory, const std::vector<double>& time_diff);
+
 private:
   unsigned int max_iterations_;    /// @brief maximum number of iterations to find solution
   double max_time_change_per_it_;  /// @brief maximum allowed time change per iteration in seconds

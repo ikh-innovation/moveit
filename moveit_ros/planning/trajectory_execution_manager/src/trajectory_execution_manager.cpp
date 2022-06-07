@@ -959,7 +959,7 @@ bool TrajectoryExecutionManager::validate(const TrajectoryExecutionContext& cont
                         positions.size());
         return false;
       }
-
+      
       for (std::size_t i = 0, end = joint_names.size(); i < end; ++i)
       {
         const robot_model::JointModel* jm = current_state->getJointModel(joint_names[i]);
@@ -971,6 +971,7 @@ bool TrajectoryExecutionManager::validate(const TrajectoryExecutionContext& cont
 
         double cur_position = current_state->getJointPositions(jm)[0];
         double traj_position = positions[i];
+        
         // normalize positions and compare
         jm->enforcePositionBounds(&cur_position);
         jm->enforcePositionBounds(&traj_position);
